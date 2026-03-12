@@ -14,14 +14,14 @@ impl SimpleVM {
     }
 
     pub fn sum(&mut self, depth: usize) -> Result<(), &'static str> {
-        let offset = self.stack.len().checked_sub(depth).ok_or_else(|| "")?;
+        let offset = self.stack.len().checked_sub(depth).ok_or_else(|| "Stack underflow")?;
         let result = self.stack.drain(offset..).sum();
         self.stack.push(result);
         Ok(())
     }
 
     pub fn product(&mut self, depth: usize) -> Result<(), &'static str> {
-        let offset = self.stack.len().checked_sub(depth).ok_or_else(|| "")?;
+        let offset = self.stack.len().checked_sub(depth).ok_or_else(|| "Stack underflow")?;
         let result = self.stack.drain(offset..).fold(Decimal::ONE, |a, x| a * x);
         self.stack.push(result);
         Ok(())
@@ -32,8 +32,11 @@ impl SimpleVM {
     }
 
     pub fn outcome(self) -> Result<Decimal, &'static str> {
-        if self.stack.len() != 1 {
-            return Err("Expected stack length == 1");
+        if self.stack.is_empty() {
+            return Err("Stack underflow");
+        }
+        if self.stack.len() > 1 {
+            return Err("Too many values");
         }
         Ok(self.stack[0])
     }
